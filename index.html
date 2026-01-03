@@ -417,8 +417,12 @@
                 
                 document.querySelectorAll('.theme-card').forEach(card => {
                     card.addEventListener('click', async (e) => {
+                        console.log('Theme card clicked!', e.currentTarget.dataset);
                         const theme = e.currentTarget.dataset.theme;
-                        if (e.currentTarget.dataset.locked) {
+                        const isLocked = e.currentTarget.dataset.locked;
+                        console.log('Theme:', theme, 'Locked:', isLocked);
+                        if (isLocked) {
+                            console.log('Theme is locked, attempting to show ad');
                             if (sdkReady && crazySDK) {
                                 try {
                                     await crazySDK.ad.requestAd('rewarded');
