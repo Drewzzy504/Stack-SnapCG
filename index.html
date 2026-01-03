@@ -227,6 +227,11 @@
                     sdkReady = true;
                     console.log('CrazyGames SDK initialized successfully');
                     
+                    // Load best score from SDK data module
+                    const savedScore = await loadData('best_score', '0');
+                    state.bestScore = parseInt(savedScore) || 0;
+                    UIManager.render(); // Update UI with loaded best score
+                    
                     // Listen for ad events
                     crazySDK.ad.addEventListener('adStarted', () => {
                         if (state.status === 'PLAYING') {
@@ -238,10 +243,43 @@
                     });
                 } else {
                     console.warn('CrazyGames SDK not available, running in standalone mode');
+                    // Load from localStorage fallback
+                    state.bestScore = parseInt(localStorage.getItem('stack_snap_best_score')) || 0;
                 }
             } catch (error) {
                 console.error('Failed to initialize CrazyGames SDK:', error);
+                // Load from localStorage fallback
+                state.bestScore = parseInt(localStorage.getItem('stack_snap_best_score')) || 0;
             }
+        }
+        
+        /**
+         * SDK Data Module helpers - cloud save with localStorage fallback
+         */
+        async function loadData(key, defaultValue) {
+            try {
+                if (sdkReady && crazySDK && crazySDK.data) {
+                    const value = await crazySDK.data.getItem(key);
+                    return value !== null ? value : defaultValue;
+                }
+            } catch (error) {
+                console.warn('SDK data load failed, using localStorage:', error);
+            }
+            // Fallback to localStorage
+            const stored = localStorage.getItem('stack_snap_' + key);
+            return stored !== null ? stored : defaultValue;
+        }
+        
+        async function saveData(key, value) {
+            try {
+                if (sdkReady && crazySDK && crazySDK.data) {
+                    await crazySDK.data.setItem(key, value);
+                }
+            } catch (error) {
+                console.warn('SDK data save failed, using localStorage:', error);
+            }
+            // Always save to localStorage as backup
+            localStorage.setItem('stack_snap_' + key, value);
         }
         
         // Initialize SDK when page loads
@@ -273,7 +311,7 @@
         const state = {
             status: 'LOADING',
             score: 0,
-            bestScore: parseInt(localStorage.getItem('stack_snap_cg_best_score')) || 0,
+            bestScore: 0, // Will be loaded async from SDK
             combo: 0,
             axis: 'x',
             direction: 1,
@@ -1031,7 +1069,8 @@
             state.status = 'GAMEOVER';
             if (state.score > state.bestScore) {
                 state.bestScore = state.score;
-                localStorage.setItem('stack_snap_cg_best_score', state.bestScore.toString());
+                // Save to SDK data module (async, but don't await to avoid blocking)
+                saveData('best_score', state.bestScore.toString());
             }
             AudioService.playGameOver();
             if (state.settings.screenShake) { shakeAmount = 1.5; shakeDuration = 600; }
