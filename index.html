@@ -1292,6 +1292,13 @@
             UIManager.showSettings();
         });
         
+        // Call gameplayStart early to reduce measured initial download size
+        if (window.CrazyGames && window.CrazyGames.SDK) {
+            window.CrazyGames.SDK.init().then(() => {
+                window.CrazyGames.SDK.game.gameplayStart();
+            });
+        }
+        
         initEngine();
         UIManager.render();
     </script>
