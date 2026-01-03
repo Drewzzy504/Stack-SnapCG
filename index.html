@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stack & Snap - Glassmorphic Edition</title>
+    <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <style>
         body, html {
@@ -92,6 +93,17 @@
             line-height: 1;
             text-align: center;
         }
+        
+        .mute-btn {
+            position: absolute; top: 20px; right: 20px; z-index: 200;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            cursor: pointer; pointer-events: auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; transition: all 0.2s;
+        }
+        .mute-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.2); }
     </style>
 <script type="importmap">
 {
@@ -104,17 +116,46 @@
 <body>
     <div id="root"></div>
     <div id="ui-root"></div>
+    <button id="mute-btn" class="mute-btn">🔊</button>
 
     <script>
         /**
-         * FACEBOOK PLAYABLE AD CTA
+         * CRAZYGAMES SDK INTEGRATION
          */
-        window.FbPlayableAd = window.FbPlayableAd || {
-            onCTAClick: function() {
-                console.log("Playable CTA Clicked");
-                window.open("https://apps.apple.com", "_blank");
+        let crazySDK = null;
+        let sdkReady = false;
+        
+        async function initCrazyGamesSDK() {
+            try {
+                if (window.CrazyGames && window.CrazyGames.SDK) {
+                    crazySDK = window.CrazyGames.SDK;
+                    await crazySDK.init();
+                    sdkReady = true;
+                    console.log('CrazyGames SDK initialized successfully');
+                    
+                    // Listen for ad events
+                    crazySDK.ad.addEventListener('adStarted', () => {
+                        if (state.status === 'PLAYING') {
+                            AudioService.mute();
+                        }
+                    });
+                    crazySDK.ad.addEventListener('adFinished', () => {
+                        if (!state.isMuted) AudioService.unmute();
+                    });
+                } else {
+                    console.warn('CrazyGames SDK not available, running in standalone mode');
+                }
+            } catch (error) {
+                console.error('Failed to initialize CrazyGames SDK:', error);
             }
-        };
+        }
+        
+        // Initialize SDK when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCrazyGamesSDK);
+        } else {
+            initCrazyGamesSDK();
+        }
 
         const CONFIG = {
             BLOCK_HEIGHT: 1,
@@ -129,7 +170,7 @@
         const state = {
             status: 'START',
             score: 0,
-            bestScore: parseInt(localStorage.getItem('stack_snap_best_score')) || 0,
+            bestScore: parseInt(localStorage.getItem('stack_snap_cg_best_score')) || 0,
             combo: 0,
             axis: 'x',
             direction: 1,
@@ -138,7 +179,9 @@
             rubble: [],
             effects: [],
             activeBlock: null,
-            lastTime: 0
+            lastTime: 0,
+            isMuted: false,
+            canContinue: true
         };
 
         const AudioService = {
@@ -147,7 +190,16 @@
             init() {
                 if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
             },
+            mute() {
+                state.isMuted = true;
+                if (this.ctx) this.ctx.suspend();
+            },
+            unmute() {
+                state.isMuted = false;
+                if (this.ctx) this.ctx.resume();
+            },
             playNote(step, isPerfect) {
+                if (state.isMuted) return;
                 if (!this.ctx) return;
                 if (this.ctx.state === 'suspended') this.ctx.resume();
                 const osc = this.ctx.createOscillator();
@@ -161,7 +213,7 @@
                 osc.start(); osc.stop(this.ctx.currentTime + 0.6);
             },
             playGameOver() {
-                if (!this.ctx) return;
+                if (!this.ctx || state.isMuted) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sawtooth';
@@ -214,8 +266,9 @@
                                     <div><p style="font-size: 0.7rem; opacity: 0.6; font-weight: 800; margin-bottom: 5px;">SCORE</p><p style="font-size: 2rem; font-weight: 900;">${state.score}</p></div>
                                     <div><p style="font-size: 0.7rem; opacity: 0.6; font-weight: 800; margin-bottom: 5px;">BEST</p><p style="font-size: 2rem; font-weight: 900; color: #0ff;">${state.bestScore}</p></div>
                                 </div>
+                                ${state.canContinue && sdkReady ? `<button id="btn-continue" class="btn btn-cta">CONTINUE (WATCH AD)</button>` : ''}
                                 <button id="btn-restart" class="btn btn-glass">TRY AGAIN</button>
-                                <button id="btn-cta" class="btn btn-cta">INSTALL NOW</button>
+                                <button id="btn-more-games" class="btn btn-glass" style="margin-top: 5px; font-size: 0.9rem;">MORE GAMES</button>
                             </div>
                         </div>
                     `;
@@ -223,10 +276,22 @@
                         e.stopPropagation();
                         restartGame();
                     });
-                    document.getElementById('btn-cta').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        window.FbPlayableAd.onCTAClick();
-                    });
+                    const moreGamesBtn = document.getElementById('btn-more-games');
+                    if (moreGamesBtn) {
+                        moreGamesBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (sdkReady && crazySDK) {
+                                crazySDK.game.inviteLink({ roomId: 'stack-snap' });
+                            }
+                        });
+                    }
+                    const continueBtn = document.getElementById('btn-continue');
+                    if (continueBtn) {
+                        continueBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            await showRewardedAd();
+                        });
+                    }
                 }
             }
         };
@@ -315,6 +380,10 @@
                 if (state.status === 'START') {
                     state.status = 'PLAYING';
                     spawnNewBlock();
+                    // CrazyGames SDK: start gameplay tracking
+                    if (sdkReady && crazySDK) {
+                        crazySDK.game.gameplayStart();
+                    }
                 } else if (state.status === 'PLAYING') {
                     placeBlock();
                 }
@@ -423,6 +492,11 @@
             state.score++;
             state.speed = Math.min(CONFIG.MAX_SPEED, state.speed + CONFIG.SPEED_INC);
             
+            // CrazyGames happytime event for engagement
+            if (sdkReady && crazySDK && state.score % 10 === 0) {
+                crazySDK.game.happytime();
+            }
+            
             const ty = state.stack.length * CONFIG.BLOCK_HEIGHT;
             camera.position.y = 12 + ty;
             camera.lookAt(0, ty - 2, 0);
@@ -467,13 +541,47 @@
             state.status = 'GAMEOVER';
             if (state.score > state.bestScore) {
                 state.bestScore = state.score;
-                localStorage.setItem('stack_snap_best_score', state.bestScore.toString());
+                localStorage.setItem('stack_snap_cg_best_score', state.bestScore.toString());
             }
             AudioService.playGameOver();
             shakeAmount = 1.5; shakeDuration = 600;
+            
+            // CrazyGames SDK: stop gameplay tracking
+            if (sdkReady && crazySDK) {
+                crazySDK.game.gameplayStop();
+            }
+            
             UIManager.render();
         }
 
+        async function showRewardedAd() {
+            if (!sdkReady || !crazySDK) return;
+            
+            try {
+                await crazySDK.ad.requestAd('rewarded');
+                // Ad watched successfully - continue game
+                continueGame();
+            } catch (error) {
+                console.error('Rewarded ad error:', error);
+                // Ad failed or was skipped
+            }
+        }
+        
+        function continueGame() {
+            state.status = 'PLAYING';
+            state.canContinue = false; // Only one continue per game
+            state.speed = Math.max(CONFIG.SPEED_INITIAL, state.speed - 0.08); // Make it a bit easier
+            UIManager.render();
+            
+            // Respawn the active block
+            spawnNewBlock();
+            
+            // CrazyGames SDK: restart gameplay tracking
+            if (sdkReady && crazySDK) {
+                crazySDK.game.gameplayStart();
+            }
+        }
+        
         function restartGame() {
             state.stack.forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
             state.rubble.forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
@@ -482,9 +590,14 @@
             
             state.stack = []; state.rubble = []; state.effects = []; state.activeBlock = null;
             state.score = 0; state.combo = 0; state.speed = CONFIG.SPEED_INITIAL;
-            state.axis = 'x'; state.status = 'PLAYING';
+            state.axis = 'x'; state.status = 'PLAYING'; state.canContinue = true;
             shakeAmount = 0; shakeDuration = 0;
             state.lastTime = performance.now();
+            
+            // CrazyGames SDK: start gameplay tracking
+            if (sdkReady && crazySDK) {
+                crazySDK.game.gameplayStart();
+            }
             
             camera.position.set(12, 12, 12);
             camera.lookAt(0,0,0);
@@ -543,6 +656,18 @@
             renderer.render(scene, camera);
         }
 
+        // Mute button toggle
+        document.getElementById('mute-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            state.isMuted = !state.isMuted;
+            document.getElementById('mute-btn').textContent = state.isMuted ? '🔇' : '🔊';
+            if (state.isMuted) {
+                AudioService.mute();
+            } else {
+                AudioService.unmute();
+            }
+        });
+        
         initEngine();
         UIManager.render();
     </script>
