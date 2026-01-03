@@ -595,15 +595,19 @@
         
         function updateThemeColors() {
             const colors = getCurrentThemeColors();
+            console.log('Updating theme to:', state.currentTheme, 'Colors:', colors);
             state.stack.forEach((block, i) => {
                 if (block.material) {
                     const hue = (i * 0.1) % 1;
                     const color = new THREE.Color(colors[i % colors.length]);
                     block.material.color.copy(color);
                     block.material.emissive.copy(color);
+                    block.material.needsUpdate = true;
                 }
             });
-            if (pointLight) pointLight.color.copy(new THREE.Color(colors[0]));
+            if (pointLight) {
+                pointLight.color.copy(new THREE.Color(colors[0]));
+            }
             
             // Update active block if it exists
             if (state.activeBlock && state.activeBlock.material) {
@@ -611,6 +615,7 @@
                 const color = new THREE.Color(colors[idx % colors.length]);
                 state.activeBlock.material.color.copy(color);
                 state.activeBlock.material.emissive.copy(color);
+                state.activeBlock.material.needsUpdate = true;
             }
         }
         
