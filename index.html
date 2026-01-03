@@ -633,8 +633,8 @@
             scene.fog = new THREE.FogExp2(0x010103, 0.03);
 
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(15, 10, 15);
-            camera.lookAt(0, 0, 0); // Look at ground level to see foundation
+            camera.position.set(12, 4, 12);
+            camera.lookAt(0, 2, 0); // Look at block level (around Y=2)
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -882,7 +882,7 @@
             }
             
             const ty = (state.stack.length + 0.5) * CONFIG.BLOCK_HEIGHT;
-            state.camera.targetY = 10 + ty;
+            state.camera.targetY = 4 + ty;
             state.camera.targetFov = 45 + Math.min(10, state.combo * 0.8);
             
             // CrazyGames happytime event - throttled
@@ -1002,10 +1002,10 @@
             state.lastTime = performance.now();
             
             // Reset camera smoothly
-            state.camera.targetY = 10;
+            state.camera.targetY = 4;
             state.camera.targetFov = 45;
-            camera.position.set(15, 10, 15);
-            camera.lookAt(0, 0, 0); // Look at ground level
+            camera.position.set(12, 4, 12);
+            camera.lookAt(0, 2, 0); // Look at block level
             camera.fov = 45; 
             camera.updateProjectionMatrix();
             
@@ -1092,7 +1092,7 @@
                 shakeDuration -= deltaTime;
                 if (shakeDuration <= 0) {
                     const ty = (state.stack.length + 0.5) * CONFIG.BLOCK_HEIGHT;
-                    state.camera.targetY = 10 + ty;
+                    state.camera.targetY = 4 + ty;
                 }
             }
 
