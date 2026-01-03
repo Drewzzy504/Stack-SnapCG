@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Stack blocks perfectly to build the tallest tower! Addictive arcade stacking game with stunning glassmorphic visuals.">
+    <meta property="og:title" content="Stack & Snap - Addictive Stacking Game">
+    <meta property="og:description" content="Stack blocks perfectly to build the tallest tower! Test your timing and precision.">
+    <meta property="og:type" content="game">
+    <meta name="theme-color" content="#00ffff">
     <title>Stack & Snap - Glassmorphic Edition</title>
     <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
@@ -47,11 +52,13 @@
         }
 
         .btn {
-            padding: 18px 36px; border-radius: 18px; font-weight: 800; font-size: 1.1rem;
+            padding: 22px 40px; border-radius: 18px; font-weight: 800; font-size: 1.1rem;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto; cursor: pointer; border: none; outline: none;
             width: 100%; margin-top: 10px;
             display: block;
+            min-height: 60px;
+            touch-action: manipulation;
         }
         .btn-glass {
             background: rgba(255, 255, 255, 0.1); color: white;
@@ -94,16 +101,96 @@
             text-align: center;
         }
         
-        .mute-btn {
-            position: absolute; top: 20px; right: 20px; z-index: 200;
-            width: 50px; height: 50px; border-radius: 50%;
+        .mute-btn, .pause-btn, .settings-btn {
+            position: absolute; top: 20px; z-index: 200;
+            width: 56px; height: 56px; border-radius: 50%;
             background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             cursor: pointer; pointer-events: auto;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem; transition: all 0.2s;
+            touch-action: manipulation;
         }
-        .mute-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.2); }
+        .mute-btn { right: 20px; }
+        .pause-btn { right: 90px; }
+        .settings-btn { right: 160px; }
+        .mute-btn:active, .pause-btn:active, .settings-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.2); }
+        
+        .tutorial-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.8);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 300; pointer-events: auto;
+        }
+        
+        .loading-screen {
+            position: absolute; inset: 0; background: #050508;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 400;
+        }
+        .loading-bar {
+            width: 200px; height: 4px; background: rgba(255,255,255,0.1);
+            border-radius: 2px; overflow: hidden; margin-top: 20px;
+        }
+        .loading-progress {
+            height: 100%; background: linear-gradient(90deg, #00ffff, #7000ff);
+            transition: width 0.3s;
+        }
+        
+        .settings-panel {
+            max-width: 400px;
+        }
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 15px 0; padding: 10px; background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        .difficulty-selector {
+            display: flex; gap: 10px; margin: 20px 0;
+        }
+        .difficulty-btn {
+            flex: 1; padding: 12px; border-radius: 12px;
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            color: white; font-weight: 700; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .difficulty-btn.active {
+            background: rgba(0,255,255,0.2); border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+        .theme-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 10px; margin: 15px 0;
+        }
+        .theme-card {
+            padding: 20px; border-radius: 16px; text-align: center;
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .theme-card.locked::after {
+            content: '🔒'; position: absolute; top: 5px; right: 5px;
+            font-size: 1.2rem;
+        }
+        .theme-card.active {
+            border-color: #00ffff; box-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+        
+        .multiplier-badge {
+            position: absolute; top: 120px; left: 24px; z-index: 150;
+            padding: 12px 20px; border-radius: 16px;
+            background: rgba(255,215,0,0.2); border: 2px solid rgba(255,215,0,0.5);
+            font-size: 1.8rem; font-weight: 900;
+            color: #ffd700; pointer-events: none;
+            animation: scaleUp 0.3s ease-out;
+        }
+        @keyframes scaleUp { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+        
+        .milestone-flash {
+            position: absolute; inset: 0; z-index: 250;
+            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, transparent 70%);
+            animation: flashOut 0.8s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes flashOut { 0% { opacity: 1; } 100% { opacity: 0; } }
     </style>
 <script type="importmap">
 {
@@ -117,6 +204,12 @@
     <div id="root"></div>
     <div id="ui-root"></div>
     <button id="mute-btn" class="mute-btn">🔊</button>
+    <button id="pause-btn" class="pause-btn" style="display:none;">⏸️</button>
+    <button id="settings-btn" class="settings-btn">⚙️</button>
+    <div id="loading-screen" class="loading-screen">
+        <h2 style="font-size: 2rem; font-weight: 900; color: #00ffff;">STACK & SNAP</h2>
+        <div class="loading-bar"><div id="loading-progress" class="loading-progress" style="width: 0%;"></div></div>
+    </div>
 
     <script>
         /**
@@ -164,11 +257,23 @@
             SPEED_INC: 0.004,
             MAX_SPEED: 0.5,
             PERFECT_THRESHOLD: 0.15,
-            COLORS: ['#00ffff', '#7000ff', '#ff0070', '#ffcf00', '#00ff70']
+            COLORS: ['#00ffff', '#7000ff', '#ff0070', '#ffcf00', '#00ff70'],
+            DIFFICULTIES: {
+                easy: { speedMult: 0.7, perfectThreshold: 0.2, name: 'Easy' },
+                normal: { speedMult: 1.0, perfectThreshold: 0.15, name: 'Normal' },
+                hard: { speedMult: 1.4, perfectThreshold: 0.1, name: 'Hard' }
+            },
+            THEMES: {
+                neon: { name: 'Neon', colors: ['#00ffff', '#7000ff', '#ff0070', '#ffcf00', '#00ff70'], unlocked: true },
+                space: { name: 'Space', colors: ['#4169e1', '#9370db', '#00ced1', '#1e90ff', '#6495ed'], unlocked: false },
+                retro: { name: 'Retro', colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7dc6f', '#bb8fce'], unlocked: false },
+                sunset: { name: 'Sunset', colors: ['#ff6b35', '#ff9f1c', '#ffbf69', '#fe5f55', '#f95d6a'], unlocked: false }
+            },
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
         };
 
         const state = {
-            status: 'START',
+            status: 'LOADING',
             score: 0,
             bestScore: parseInt(localStorage.getItem('stack_snap_cg_best_score')) || 0,
             combo: 0,
@@ -180,8 +285,28 @@
             effects: [],
             activeBlock: null,
             lastTime: 0,
-            isMuted: false,
-            canContinue: true
+            isMuted: localStorage.getItem('stack_snap_muted') === 'true',
+            canContinue: true,
+            difficulty: localStorage.getItem('stack_snap_difficulty') || 'normal',
+            currentTheme: localStorage.getItem('stack_snap_theme') || 'neon',
+            unlockedThemes: JSON.parse(localStorage.getItem('stack_snap_unlocked_themes') || '["neon"]'),
+            showTutorial: !localStorage.getItem('stack_snap_played_before'),
+            isPaused: false,
+            gamesPlayed: parseInt(localStorage.getItem('stack_snap_games_played')) || 0,
+            lastAdTime: 0,
+            settings: {
+                particles: localStorage.getItem('stack_snap_particles') !== 'false',
+                screenShake: localStorage.getItem('stack_snap_shake') !== 'false',
+                effects: localStorage.getItem('stack_snap_effects') !== 'false'
+            },
+            camera: {
+                targetY: 12,
+                targetFov: 45
+            },
+            pools: {
+                rubble: [],
+                effects: []
+            }
         };
 
         const AudioService = {
@@ -234,8 +359,137 @@
                 if (c < 10) return "INSANE!!";
                 return "UNSTOPPABLE!!!";
             },
+            showSettings() {
+                const themes = Object.entries(CONFIG.THEMES).map(([key, theme]) => {
+                    const unlocked = state.unlockedThemes.includes(key);
+                    const active = state.currentTheme === key;
+                    return `<div class="theme-card ${unlocked ? '' : 'locked'} ${active ? 'active' : ''}" data-theme="${key}" ${unlocked ? '' : 'data-locked="true"'}>
+                        <div style="font-weight: 700;">${theme.name}</div>
+                        <div style="width: 100%; height: 4px; background: linear-gradient(90deg, ${theme.colors.join(', ')}); margin-top: 8px; border-radius: 2px;"></div>
+                    </div>`;
+                }).join('');
+                
+                this.root.innerHTML = `
+                    <div class="overlay-screen">
+                        <div class="glass-panel settings-panel animate-pop">
+                            <h2 style="font-size: 2rem; font-weight: 900; margin: 0 0 20px 0;">\u2699\ufe0f SETTINGS</h2>
+                            
+                            <div style="text-align: left;">
+                                <p style="font-size: 0.8rem; font-weight: 700; opacity: 0.6; margin-bottom: 10px;">DIFFICULTY</p>
+                                <div class="difficulty-selector">
+                                    ${Object.entries(CONFIG.DIFFICULTIES).map(([key, diff]) => 
+                                        `<button class="difficulty-btn ${state.difficulty === key ? 'active' : ''}" data-difficulty="${key}">${diff.name}</button>`
+                                    ).join('')}
+                                </div>
+                                
+                                <p style="font-size: 0.8rem; font-weight: 700; opacity: 0.6; margin: 20px 0 10px 0;">THEMES</p>
+                                <div class="theme-grid">${themes}</div>
+                                
+                                <p style="font-size: 0.8rem; font-weight: 700; opacity: 0.6; margin: 20px 0 10px 0;">VISUAL EFFECTS</p>
+                                <div class="setting-row">
+                                    <span>Particles</span>
+                                    <button class="btn-glass" id="toggle-particles" style="padding: 8px 16px; min-height: auto; width: auto;">${state.settings.particles ? 'ON' : 'OFF'}</button>
+                                </div>
+                                <div class="setting-row">
+                                    <span>Screen Shake</span>
+                                    <button class="btn-glass" id="toggle-shake" style="padding: 8px 16px; min-height: auto; width: auto;">${state.settings.screenShake ? 'ON' : 'OFF'}</button>
+                                </div>
+                                <div class="setting-row">
+                                    <span>Effects</span>
+                                    <button class="btn-glass" id="toggle-effects" style="padding: 8px 16px; min-height: auto; width: auto;">${state.settings.effects ? 'ON' : 'OFF'}</button>
+                                </div>
+                            </div>
+                            
+                            <button id="btn-close-settings" class="btn btn-cta" style="margin-top: 20px;">CLOSE</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const difficulty = e.target.dataset.difficulty;
+                        state.difficulty = difficulty;
+                        localStorage.setItem('stack_snap_difficulty', difficulty);
+                        this.showSettings();
+                    });
+                });
+                
+                document.querySelectorAll('.theme-card').forEach(card => {
+                    card.addEventListener('click', async (e) => {
+                        const theme = e.currentTarget.dataset.theme;
+                        if (e.currentTarget.dataset.locked) {
+                            if (sdkReady && crazySDK) {
+                                try {
+                                    await crazySDK.ad.requestAd('rewarded');
+                                    state.unlockedThemes.push(theme);
+                                    localStorage.setItem('stack_snap_unlocked_themes', JSON.stringify(state.unlockedThemes));
+                                    state.currentTheme = theme;
+                                    localStorage.setItem('stack_snap_theme', theme);
+                                    updateThemeColors();
+                                    this.showSettings();
+                                } catch (err) {
+                                    console.log('Ad not watched');
+                                }
+                            }
+                        } else {
+                            state.currentTheme = theme;
+                            localStorage.setItem('stack_snap_theme', theme);
+                            updateThemeColors();
+                            this.showSettings();
+                        }
+                    });
+                });
+                
+                const setupToggle = (id, setting) => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.addEventListener('click', () => {
+                            state.settings[setting] = !state.settings[setting];
+                            localStorage.setItem(`stack_snap_${setting}`, state.settings[setting]);
+                            this.showSettings();
+                        });
+                    }
+                };
+                setupToggle('toggle-particles', 'particles');
+                setupToggle('toggle-shake', 'screenShake');
+                setupToggle('toggle-effects', 'effects');
+                
+                document.getElementById('btn-close-settings').addEventListener('click', () => {
+                    if (state.status === 'PAUSED') {
+                        this.render();
+                        togglePause();
+                    } else {
+                        state.status = 'START';
+                        this.render();
+                    }
+                });
+            },
             render() {
                 this.root.innerHTML = '';
+                
+                if (state.showTutorial && state.status !== 'LOADING') {
+                    this.root.innerHTML = `
+                        <div class="tutorial-overlay animate-pop">
+                            <div class="glass-panel">
+                                <h2 style="font-size: 2rem; font-weight: 900; margin: 0 0 20px 0;">\ud83c\udfaf HOW TO PLAY</h2>
+                                <p style="line-height: 1.8; opacity: 0.9;">
+                                    \u2022 Tap to drop the block<br>
+                                    \u2022 Stack blocks perfectly for combos<br>
+                                    \u2022 Build the tallest tower!<br>
+                                    \u2022 Miss too much and it's game over
+                                </p>
+                                <button id="btn-start-tutorial" class="btn btn-cta" style="margin-top: 20px;">GOT IT!</button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('btn-start-tutorial').addEventListener('click', () => {
+                        state.showTutorial = false;
+                        localStorage.setItem('stack_snap_played_before', 'true');
+                        this.render();
+                    });
+                    return;
+                }
+                
                 if (state.status === 'START') {
                     this.root.innerHTML = `
                         <div class="overlay-screen animate-pop">
@@ -244,20 +498,43 @@
                             <div class="tap-prompt">TAP TO START</div>
                         </div>
                     `;
+                } else if (state.status === 'PAUSED') {
+                    this.root.innerHTML = `
+                        <div class="overlay-screen">
+                            <div class="glass-panel animate-pop">
+                                <h2 style="font-size: 2.5rem; font-weight: 900; margin: 0 0 20px 0;">\u23f8\ufe0f PAUSED</h2>
+                                <p style="opacity: 0.8; margin-bottom: 20px;">Score: ${state.score}</p>
+                                <button id="btn-resume" class="btn btn-cta">RESUME</button>
+                                <button id="btn-restart-paused" class="btn btn-glass">RESTART</button>
+                                <button id="btn-settings-paused" class="btn btn-glass">\u2699\ufe0f SETTINGS</button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('btn-resume').addEventListener('click', () => togglePause());
+                    document.getElementById('btn-restart-paused').addEventListener('click', () => {
+                        togglePause();
+                        restartGame();
+                    });
+                    document.getElementById('btn-settings-paused').addEventListener('click', () => {
+                        this.showSettings();
+                    });
                 } else if (state.status === 'PLAYING') {
+                    const multiplier = Math.min(Math.floor(state.combo / 3) + 1, 5);
                     this.root.innerHTML = `
                         <div class="hud-corner animate-pop">
                             <div class="score-text">${state.score}</div>
                             <div class="best-label">BEST: ${state.bestScore}</div>
                             ${state.combo > 0 ? `
-                                <div class="combo-badge" style="border-color: ${CONFIG.COLORS[Math.min(state.combo, 4)]}">
-                                    <div class="combo-title" style="color: ${CONFIG.COLORS[Math.min(state.combo, 4)]}">${this.getComboTitle(state.combo)}</div>
+                                <div class="combo-badge" style="border-color: ${getCurrentThemeColors()[Math.min(state.combo, 4)]}">
+                                    <div class="combo-title" style="color: ${getCurrentThemeColors()[Math.min(state.combo, 4)]}">${this.getComboTitle(state.combo)}</div>
                                     <div class="streak-label">${state.combo}X STREAK</div>
                                 </div>
                             ` : ''}
                         </div>
+                        ${multiplier > 1 ? `<div class="multiplier-badge">${multiplier}X</div>` : ''}
                     `;
                 } else if (state.status === 'GAMEOVER') {
+                    const showMidgameAd = state.gamesPlayed % 3 === 0 && state.gamesPlayed > 0;
                     this.root.innerHTML = `
                         <div class="overlay-screen">
                             <div class="glass-panel animate-pop">
@@ -272,6 +549,18 @@
                             </div>
                         </div>
                     `;
+                    
+                    // Midgame ad every 3 games
+                    if (showMidgameAd && sdkReady && crazySDK) {
+                        setTimeout(async () => {
+                            try {
+                                await crazySDK.ad.requestAd('midgame');
+                            } catch (err) {
+                                console.log('Midgame ad not shown');
+                            }
+                        }, 1000);
+                    }
+                    
                     document.getElementById('btn-restart').addEventListener('click', (e) => {
                         e.stopPropagation();
                         restartGame();
@@ -298,6 +587,45 @@
 
         let scene, camera, renderer, pointLight, starField;
         let shakeAmount = 0, shakeDuration = 0;
+        
+        function getCurrentThemeColors() {
+            return CONFIG.THEMES[state.currentTheme].colors;
+        }
+        
+        function updateThemeColors() {
+            const colors = getCurrentThemeColors();
+            state.stack.forEach((block, i) => {
+                if (block.material) {
+                    const hue = (i * 0.1) % 1;
+                    const color = new THREE.Color(colors[i % colors.length]);
+                    block.material.color.copy(color);
+                    block.material.emissive.copy(color);
+                }
+            });
+            if (pointLight) pointLight.color.copy(new THREE.Color(colors[0]));
+        }
+        
+        function togglePause() {
+            if (state.status === 'PLAYING') {
+                state.status = 'PAUSED';
+                state.isPaused = true;
+                document.getElementById('pause-btn').textContent = '\u25b6\ufe0f';
+            } else if (state.status === 'PAUSED') {
+                state.status = 'PLAYING';
+                state.isPaused = false;
+                state.lastTime = performance.now();
+                document.getElementById('pause-btn').textContent = '\u23f8\ufe0f';
+            }
+            UIManager.render();
+        }
+        
+        function showMilestone(score) {
+            if (!state.settings.effects) return;
+            const flash = document.createElement('div');
+            flash.className = 'milestone-flash';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 800);
+        }
 
         function initEngine() {
             scene = new THREE.Scene();
@@ -319,8 +647,8 @@
             pointLight = new THREE.PointLight(0x00ffff, 5, 20);
             scene.add(pointLight);
 
-            // STARRY BACKGROUND FIX: Fog must be disabled for stars to be visible at distance
-            const starCount = 1200;
+            // Optimized star count for mobile
+            const starCount = CONFIG.isMobile ? 600 : 1200;
             const starGeometry = new THREE.BufferGeometry();
             const positions = new Float32Array(starCount * 3);
             const colors = new Float32Array(starCount * 3);
@@ -363,6 +691,22 @@
             scene.add(starField);
 
             createFoundation();
+            
+            // Loading simulation
+            let progress = 0;
+            const loadInterval = setInterval(() => {
+                progress += 20;
+                document.getElementById('loading-progress').style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(loadInterval);
+                    setTimeout(() => {
+                        document.getElementById('loading-screen').style.display = 'none';
+                        state.status = 'START';
+                        UIManager.render();
+                    }, 300);
+                }
+            }, 100);
+            
             state.lastTime = performance.now();
             animate(state.lastTime);
             
@@ -380,6 +724,7 @@
                 if (state.status === 'START') {
                     state.status = 'PLAYING';
                     spawnNewBlock();
+                    document.getElementById('pause-btn').style.display = 'flex';
                     // CrazyGames SDK: start gameplay tracking
                     if (sdkReady && crazySDK) {
                         crazySDK.game.gameplayStart();
@@ -389,8 +734,26 @@
                 }
                 UIManager.render();
             };
+            
+            // Touch swipe detection for controls
+            let touchStartX = 0, touchStartY = 0;
+            const handleTouchStart = (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            };
+            const handleTouchEnd = (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                const deltaX = e.changedTouches[0].clientX - touchStartX;
+                const deltaY = e.changedTouches[0].clientY - touchStartY;
+                if (Math.abs(deltaX) < 50 && Math.abs(deltaY) < 50) {
+                    handleAction(e);
+                }
+            };
+            
             window.addEventListener('mousedown', handleAction);
-            window.addEventListener('touchstart', handleAction, { passive: false });
+            window.addEventListener('touchstart', handleTouchStart, { passive: false });
+            window.addEventListener('touchend', handleTouchEnd, { passive: false });
         }
 
         function createGlassMaterial(color, isBase = false) {
@@ -417,8 +780,9 @@
             const prevSize = prev.geometry.parameters;
             state.axis = state.axis === 'x' ? 'z' : 'x';
             
+            const colors = getCurrentThemeColors();
             const hue = (state.stack.length * 0.1) % 1;
-            const color = new THREE.Color().setHSL(hue, 0.8, 0.6);
+            const color = new THREE.Color(colors[state.stack.length % colors.length]);
             const geom = new THREE.BoxGeometry(prevSize.width, CONFIG.BLOCK_HEIGHT, prevSize.depth);
             const mat = createGlassMaterial(color);
             const mesh = new THREE.Mesh(geom, mat);
@@ -449,6 +813,9 @@
             const size = axis === 'x' ? active.geometry.parameters.width : active.geometry.parameters.depth;
             const delta = active.position[axis] - prev.position[axis];
             const absDelta = Math.abs(delta);
+            
+            const diffConfig = CONFIG.DIFFICULTIES[state.difficulty];
+            const perfectThresh = diffConfig.perfectThreshold;
             const overlap = size - absDelta;
 
             if (overlap <= 0.05) {
@@ -456,7 +823,7 @@
                 return;
             }
 
-            const isPerfect = absDelta < CONFIG.PERFECT_THRESHOLD;
+            const isPerfect = absDelta < perfectThresh;
             let finalPos = prev.position[axis] + delta / 2;
             let newSize = size;
 
@@ -465,8 +832,8 @@
                 state.combo++;
                 if (state.combo >= 5) newSize = Math.min(CONFIG.INITIAL_SIZE, size + 0.2);
                 AudioService.playNote(state.stack.length, true);
-                spawnPulseRing(active.position, active.material.color);
-                shakeAmount = 0.3; shakeDuration = 200;
+                if (state.settings.particles) spawnPulseRing(active.position, active.material.color);
+                if (state.settings.screenShake) { shakeAmount = 0.3; shakeDuration = 200; }
             } else {
                 state.combo = 0;
                 newSize = overlap;
@@ -489,20 +856,29 @@
 
             state.stack.push(active);
             state.activeBlock = null;
-            state.score++;
-            state.speed = Math.min(CONFIG.MAX_SPEED, state.speed + CONFIG.SPEED_INC);
             
-            // CrazyGames happytime event for engagement
-            if (sdkReady && crazySDK && state.score % 10 === 0) {
-                crazySDK.game.happytime();
+            // Score multiplier based on combo
+            const multiplier = Math.min(Math.floor(state.combo / 3) + 1, 5);
+            state.score += multiplier;
+            
+            const diffMult = diffConfig.speedMult;
+            state.speed = Math.min(CONFIG.MAX_SPEED * diffMult, state.speed + (CONFIG.SPEED_INC * diffMult));
+            
+            // Milestone celebrations
+            if ([25, 50, 100, 200].includes(state.score)) {
+                showMilestone(state.score);
             }
             
             const ty = state.stack.length * CONFIG.BLOCK_HEIGHT;
-            camera.position.y = 12 + ty;
-            camera.lookAt(0, ty - 2, 0);
-            camera.fov = 45 + Math.min(10, state.combo * 0.8);
-            camera.updateProjectionMatrix();
+            state.camera.targetY = 12 + ty;
+            state.camera.targetFov = 45 + Math.min(10, state.combo * 0.8);
+            
+            // CrazyGames happytime event - throttled
+            if (sdkReady && crazySDK && state.score % 15 === 0) {
+                crazySDK.game.happytime();
+            }
 
+            UIManager.render();
             spawnNewBlock();
         }
 
@@ -522,6 +898,18 @@
             const shift = (overlap / 2 + rSize / 2) * Math.sign(delta);
             mesh.position.copy(active.position);
             mesh.position[axis] = prev.position[axis] + shift;
+            
+            // Enhanced rubble physics
+            mesh.userData = {
+                rotationSpeed: {
+                    x: (Math.random() - 0.5) * 0.2,
+                    y: (Math.random() - 0.5) * 0.2,
+                    z: (Math.random() - 0.5) * 0.2
+                },
+                velocityX: (Math.random() - 0.5) * 0.1,
+                velocityZ: (Math.random() - 0.5) * 0.1
+            };
+            
             scene.add(mesh);
             state.rubble.push(mesh);
         }
@@ -544,7 +932,12 @@
                 localStorage.setItem('stack_snap_cg_best_score', state.bestScore.toString());
             }
             AudioService.playGameOver();
-            shakeAmount = 1.5; shakeDuration = 600;
+            if (state.settings.screenShake) { shakeAmount = 1.5; shakeDuration = 600; }
+            
+            state.gamesPlayed++;
+            localStorage.setItem('stack_snap_games_played', state.gamesPlayed.toString());
+            
+            document.getElementById('pause-btn').style.display = 'none';
             
             // CrazyGames SDK: stop gameplay tracking
             if (sdkReady && crazySDK) {
@@ -589,19 +982,28 @@
             if (state.activeBlock) { scene.remove(state.activeBlock); state.activeBlock.geometry.dispose(); state.activeBlock.material.dispose(); }
             
             state.stack = []; state.rubble = []; state.effects = []; state.activeBlock = null;
-            state.score = 0; state.combo = 0; state.speed = CONFIG.SPEED_INITIAL;
+            state.score = 0; state.combo = 0; 
+            const diffMult = CONFIG.DIFFICULTIES[state.difficulty].speedMult;
+            state.speed = CONFIG.SPEED_INITIAL * diffMult;
             state.axis = 'x'; state.status = 'PLAYING'; state.canContinue = true;
             shakeAmount = 0; shakeDuration = 0;
             state.lastTime = performance.now();
+            
+            // Reset camera smoothly
+            state.camera.targetY = 12;
+            state.camera.targetFov = 45;
+            camera.position.set(12, 12, 12);
+            camera.lookAt(0,0,0);
+            camera.fov = 45; 
+            camera.updateProjectionMatrix();
+            
+            document.getElementById('pause-btn').style.display = 'flex';
+            document.getElementById('pause-btn').textContent = '⏸️';
             
             // CrazyGames SDK: start gameplay tracking
             if (sdkReady && crazySDK) {
                 crazySDK.game.gameplayStart();
             }
-            
-            camera.position.set(12, 12, 12);
-            camera.lookAt(0,0,0);
-            camera.fov = 45; camera.updateProjectionMatrix();
             
             createFoundation();
             spawnNewBlock();
@@ -610,6 +1012,8 @@
 
         function animate(time) {
             requestAnimationFrame(animate);
+            
+            if (state.isPaused) return;
             
             const deltaTime = time - state.lastTime;
             state.lastTime = time;
@@ -620,36 +1024,63 @@
                 starField.rotation.x += 0.0002 * dt;
             }
 
+            // Smooth camera movement (lerp)
+            const lerpFactor = 0.1 * dt;
+            const ty = state.camera.targetY;
+            camera.position.y += (ty - camera.position.y) * lerpFactor;
+            camera.position.x += (12 - camera.position.x) * lerpFactor * 0.5;
+            camera.position.z += (12 - camera.position.z) * lerpFactor * 0.5;
+            camera.fov += (state.camera.targetFov - camera.fov) * lerpFactor;
+            camera.updateProjectionMatrix();
+            camera.lookAt(0, ty - 2, 0);
+
             if (state.status === 'PLAYING' && state.activeBlock) {
-                state.activeBlock.position[state.axis] += state.direction * state.speed * dt;
+                const diffMult = CONFIG.DIFFICULTIES[state.difficulty].speedMult;
+                state.activeBlock.position[state.axis] += state.direction * state.speed * diffMult * dt;
                 if (Math.abs(state.activeBlock.position[state.axis]) > 13) state.direction *= -1;
                 pointLight.position.copy(state.activeBlock.position);
                 pointLight.position.y += 2;
             }
 
+            // Enhanced rubble physics
             state.rubble = state.rubble.filter(r => {
                 r.position.y -= 0.3 * dt;
-                r.rotation.x += 0.1 * dt;
-                if (r.position.y < -40) { scene.remove(r); return false; }
+                if (r.userData) {
+                    r.rotation.x += r.userData.rotationSpeed.x * dt;
+                    r.rotation.y += r.userData.rotationSpeed.y * dt;
+                    r.rotation.z += r.userData.rotationSpeed.z * dt;
+                    r.position.x += r.userData.velocityX * dt;
+                    r.position.z += r.userData.velocityZ * dt;
+                }
+                if (r.position.y < -40) { 
+                    scene.remove(r); 
+                    r.geometry.dispose();
+                    r.material.dispose();
+                    return false; 
+                }
                 return true;
             });
 
             state.effects = state.effects.filter(e => {
                 e.scale.addScalar(0.2 * dt);
                 e.material.opacity -= 0.05 * dt;
-                if (e.material.opacity <= 0) { scene.remove(e); return false; }
+                if (e.material.opacity <= 0) { 
+                    scene.remove(e); 
+                    e.geometry.dispose();
+                    e.material.dispose();
+                    return false; 
+                }
                 return true;
             });
 
-            if (shakeDuration > 0) {
+            if (shakeDuration > 0 && state.settings.screenShake) {
                 const shake = (Math.random() - 0.5) * shakeAmount;
                 camera.position.x += shake;
                 camera.position.z += shake;
                 shakeDuration -= deltaTime;
                 if (shakeDuration <= 0) {
                     const ty = state.stack.length * CONFIG.BLOCK_HEIGHT;
-                    camera.position.set(12, 12 + ty, 12);
-                    camera.lookAt(0, ty - 2, 0);
+                    state.camera.targetY = 12 + ty;
                 }
             }
 
@@ -660,12 +1091,38 @@
         document.getElementById('mute-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             state.isMuted = !state.isMuted;
+            localStorage.setItem('stack_snap_muted', state.isMuted);
             document.getElementById('mute-btn').textContent = state.isMuted ? '🔇' : '🔊';
             if (state.isMuted) {
                 AudioService.mute();
             } else {
                 AudioService.unmute();
             }
+        });
+        
+        // Set initial mute button state
+        if (state.isMuted) {
+            document.getElementById('mute-btn').textContent = '🔇';
+            AudioService.mute();
+        }
+        
+        // Pause button toggle
+        document.getElementById('pause-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.status === 'PLAYING' || state.status === 'PAUSED') {
+                togglePause();
+            }
+        });
+        
+        // Settings button
+        document.getElementById('settings-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasPlaying = state.status === 'PLAYING';
+            if (wasPlaying) {
+                state.status = 'PAUSED';
+                state.isPaused = true;
+            }
+            UIManager.showSettings();
         });
         
         initEngine();
