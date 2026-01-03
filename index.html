@@ -361,6 +361,7 @@
                 return "UNSTOPPABLE!!!";
             },
             showSettings() {
+                console.log('showSettings called, currentTheme:', state.currentTheme);
                 const themes = Object.entries(CONFIG.THEMES).map(([key, theme]) => {
                     const unlocked = state.unlockedThemes.includes(key);
                     const active = state.currentTheme === key;
@@ -369,6 +370,9 @@
                         <div style="width: 100%; height: 4px; background: linear-gradient(90deg, ${theme.colors.join(', ')}); margin-top: 8px; border-radius: 2px;"></div>
                     </div>`;
                 }).join('');
+                
+                console.log('Theme cards HTML:', themes);
+                console.log('Unlocked themes:', state.unlockedThemes);
                 
                 this.root.innerHTML = `
                     <div class="overlay-screen">
@@ -416,6 +420,7 @@
                 });
                 
                 document.querySelectorAll('.theme-card').forEach(card => {
+                    console.log('Attaching listener to card:', card.dataset.theme);
                     card.addEventListener('click', async (e) => {
                         console.log('Theme card clicked!', e.currentTarget.dataset);
                         const theme = e.currentTarget.dataset.theme;
