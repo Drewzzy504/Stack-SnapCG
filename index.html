@@ -692,6 +692,10 @@
 
             createFoundation();
             
+            // Force initial render to show foundation
+            camera.lookAt(0, 0.5, 0);
+            renderer.render(scene, camera);
+            
             // Loading simulation
             let progress = 0;
             const loadInterval = setInterval(() => {
