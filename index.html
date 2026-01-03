@@ -604,6 +604,14 @@
                 }
             });
             if (pointLight) pointLight.color.copy(new THREE.Color(colors[0]));
+            
+            // Update active block if it exists
+            if (state.activeBlock && state.activeBlock.material) {
+                const idx = state.stack.length;
+                const color = new THREE.Color(colors[idx % colors.length]);
+                state.activeBlock.material.color.copy(color);
+                state.activeBlock.material.emissive.copy(color);
+            }
         }
         
         function togglePause() {
