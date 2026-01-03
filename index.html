@@ -433,10 +433,12 @@
                                 }
                             }
                         } else {
+                            console.log('Changing theme from', state.currentTheme, 'to', theme);
                             state.currentTheme = theme;
                             localStorage.setItem('stack_snap_theme', theme);
                             updateThemeColors();
                             this.showSettings();
+                            console.log('Theme now:', state.currentTheme);
                         }
                     });
                 });
