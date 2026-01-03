@@ -647,7 +647,9 @@
             const material = new THREE.LineBasicMaterial({
                 color: Math.random() > 0.5 ? 0x00ffff : 0xffffff,
                 transparent: true,
-                opacity: 1,
+                opacity: 0.9,
+                linewidth: 4,
+                blending: THREE.AdditiveBlending
                 linewidth: 2,
                 blending: THREE.AdditiveBlending
             });
@@ -722,12 +724,27 @@
             starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
             
+            // Create circular star texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            gradient.addColorStop(0.5, 'rgba(255,255,255,0.3)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 32, 32);
+            const starTexture = new THREE.CanvasTexture(canvas);
+            
             const starMaterial = new THREE.PointsMaterial({
-                size: 2.0,
+                size: 1.5,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.95,
+                opacity: 0.9,
                 sizeAttenuation: true,
+                map: starTexture,
                 fog: false, // CRITICAL: Stars should not fade with scene fog
                 blending: THREE.AdditiveBlending
             });
@@ -1114,7 +1131,7 @@
             });
 
             // Spawn new shooting star occasionally
-            if (Math.random() < 0.003 * dt && state.shootingStars.length < 3) {
+            if (Math.random() < 0.01 * dt && state.shootingStars.length < 5) {
                 spawnShootingStar();
             }
 
