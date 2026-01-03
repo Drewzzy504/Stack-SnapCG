@@ -812,6 +812,8 @@
 
             const handleAction = (e) => {
                 if (e.target.tagName === 'BUTTON') return;
+                if (e.target.closest('.theme-card')) return;
+                if (e.target.closest('.glass-panel')) return;
                 
                 if (e) e.preventDefault();
                 AudioService.init();
