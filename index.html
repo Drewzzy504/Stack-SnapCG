@@ -423,6 +423,7 @@
                 document.querySelectorAll('.theme-card').forEach(card => {
                     console.log('Attaching listener to card:', card.dataset.theme);
                     card.addEventListener('click', async (e) => {
+                        e.stopPropagation(); // Prevent click from bubbling to overlay
                         console.log('Theme card clicked!', e.currentTarget.dataset);
                         const theme = e.currentTarget.dataset.theme;
                         const isLocked = e.currentTarget.dataset.locked;
