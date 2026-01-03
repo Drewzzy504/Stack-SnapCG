@@ -768,7 +768,14 @@
 
         function createFoundation() {
             const geom = new THREE.BoxGeometry(CONFIG.INITIAL_SIZE, CONFIG.BLOCK_HEIGHT, CONFIG.INITIAL_SIZE);
-            const mat = createGlassMaterial(new THREE.Color(0x00ffff), true);
+            // Make foundation completely solid and bright for visibility
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0x00ffff,
+                emissive: 0x00ffff,
+                emissiveIntensity: 2.0,
+                metalness: 0.2,
+                roughness: 0.3
+            });
             const mesh = new THREE.Mesh(geom, mat);
             mesh.position.y = CONFIG.BLOCK_HEIGHT / 2; // Center the foundation block
             scene.add(mesh);
