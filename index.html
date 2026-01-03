@@ -1040,11 +1040,12 @@
             const lerpFactor = 0.1 * dt;
             const ty = state.camera.targetY;
             camera.position.y += (ty - camera.position.y) * lerpFactor;
-            camera.position.x += (12 - camera.position.x) * lerpFactor * 0.5;
-            camera.position.z += (12 - camera.position.z) * lerpFactor * 0.5;
+            camera.position.x += (10 - camera.position.x) * lerpFactor * 0.5;
+            camera.position.z += (10 - camera.position.z) * lerpFactor * 0.5;
             camera.fov += (state.camera.targetFov - camera.fov) * lerpFactor;
             camera.updateProjectionMatrix();
-            camera.lookAt(0, ty - 2, 0);
+            const lookAtY = Math.max(0.5, ty - 2);
+            camera.lookAt(0, lookAtY, 0);
 
             if (state.status === 'PLAYING' && state.activeBlock) {
                 const diffMult = CONFIG.DIFFICULTIES[state.difficulty].speedMult;
