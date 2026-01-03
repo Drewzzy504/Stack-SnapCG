@@ -634,7 +634,7 @@
 
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(12, 12, 12);
-            camera.lookAt(0, 0, 0);
+            camera.lookAt(0, 2, 0); // Look slightly above center to see foundation
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -994,7 +994,7 @@
             state.camera.targetY = 12;
             state.camera.targetFov = 45;
             camera.position.set(12, 12, 12);
-            camera.lookAt(0,0,0);
+            camera.lookAt(0, 2, 0); // Look at the stack starting point
             camera.fov = 45; 
             camera.updateProjectionMatrix();
             
