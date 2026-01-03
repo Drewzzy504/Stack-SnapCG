@@ -265,10 +265,7 @@
                 hard: { speedMult: 1.4, perfectThreshold: 0.1, name: 'Hard' }
             },
             THEMES: {
-                neon: { name: 'Neon', colors: ['#00ffff', '#7000ff', '#ff0070', '#ffcf00', '#00ff70'], background: '#010103', unlocked: true },
-                space: { name: 'Space', colors: ['#4169e1', '#9370db', '#00ced1', '#1e90ff', '#6495ed'], background: '#0a0520', unlocked: false },
-                retro: { name: 'Retro', colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7dc6f', '#bb8fce'], background: '#1a0a28', unlocked: false },
-                sunset: { name: 'Sunset', colors: ['#ff6b35', '#ff9f1c', '#ffbf69', '#fe5f55', '#f95d6a'], background: '#1a0f08', unlocked: false }
+                neon: { name: 'Neon', colors: ['#00ffff', '#7000ff', '#ff0070', '#ffcf00', '#00ff70'], background: '#010103', unlocked: true }
             },
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
         };
@@ -290,7 +287,7 @@
             canContinue: true,
             difficulty: localStorage.getItem('stack_snap_difficulty') || 'normal',
             currentTheme: localStorage.getItem('stack_snap_theme') || 'neon',
-            unlockedThemes: JSON.parse(localStorage.getItem('stack_snap_unlocked_themes') || '["neon", "space", "retro", "sunset"]'),
+            unlockedThemes: JSON.parse(localStorage.getItem('stack_snap_unlocked_themes') || '["neon"]'),
             showTutorial: !localStorage.getItem('stack_snap_played_before'),
             isPaused: false,
             gamesPlayed: parseInt(localStorage.getItem('stack_snap_games_played')) || 0,
