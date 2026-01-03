@@ -780,6 +780,9 @@
             mesh.position.y = CONFIG.BLOCK_HEIGHT / 2; // Center the foundation block
             scene.add(mesh);
             state.stack.push(mesh);
+            console.log('Foundation created at position:', mesh.position.y);
+            console.log('Camera position:', camera.position);
+            console.log('Stack length:', state.stack.length);
         }
 
         function spawnNewBlock() {
@@ -796,6 +799,7 @@
             const mesh = new THREE.Mesh(geom, mat);
             
             mesh.position.y = state.stack.length * CONFIG.BLOCK_HEIGHT + CONFIG.BLOCK_HEIGHT / 2;
+            console.log('New block spawned at Y:', mesh.position.y, 'Stack length:', state.stack.length);
             const offset = Math.random() > 0.5 ? 12 : -12;
             state.direction = offset > 0 ? -1 : 1;
             
