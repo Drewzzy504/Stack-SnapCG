@@ -56583,11 +56583,11 @@ if (active.userData?.superSizeApplied) {
       createFoundation();
       updateThemeVisuals();
 
+      // Call gameplayStart after state is initialized but before UI render
+      CG.gameplayStart();
+
       UIManager.render();
       spawnNewBlock();
-      
-      // Call gameplayStart AFTER game is fully initialized
-      CG.gameplayStart();
     }
 
     function backToMenu() {
