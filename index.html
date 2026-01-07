@@ -56555,7 +56555,6 @@ if (active.userData?.superSizeApplied) {
       const d = DIFFICULTIES[state.difficulty];
 
       state.status = 'PLAYING';
-      CG.gameplayStart();
 
       state.score = 0;
       state.combo = 0;
@@ -56586,6 +56585,9 @@ if (active.userData?.superSizeApplied) {
 
       UIManager.render();
       spawnNewBlock();
+      
+      // Call gameplayStart AFTER game is fully initialized
+      CG.gameplayStart();
     }
 
     function backToMenu() {
