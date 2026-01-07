@@ -56469,13 +56469,13 @@ console.log('Three.js r160 with postprocessing loaded (embedded)');
         state.combo++;
         if (state.combo > state.maxSessionCombo) state.maxSessionCombo = state.combo;
         state.flash = 0.5;
-        CG.happytime();  // Trigger engagement event for perfect block
         triggerPerfectFeedback();
         AudioService.playNote(state.stack.length, true);
 
-        // Award power-up at combo milestones (5, 10, 15, etc.)
+        // Award power-up and trigger happytime at combo milestones (5, 10, 15, etc.)
         if (state.combo >= 5 && state.combo % 5 === 0 && state.combo > state.lastComboMilestone) {
           state.lastComboMilestone = state.combo;
+          CG.happytime();  // Trigger engagement event at milestones
           awardPowerUp();
         }
 
